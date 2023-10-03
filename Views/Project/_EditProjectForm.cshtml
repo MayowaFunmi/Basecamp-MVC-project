@@ -1,0 +1,24 @@
+@model BasecampMVC.Data.EditProjectViewModel
+<form asp-action="EditProject" method="post">
+  @Html.AntiForgeryToken()
+	<div class="col-md-7 col-lg-8">
+		<div class="row g-3">
+			<input type="hidden" asp-for="ProjectId" class="form-control" value="@Model.ProjectId" required>
+
+			<div class="col-12">
+				<label asp-for="Name" class="form-label">Project Title</label>
+				<input asp-for="Name" class="form-control" placeholder="Enter Title Of Project"  value="@Model.Name" required>
+				<span asp-validation-for="Name" class="text-danger"></span>
+			</div>
+
+      		<div class="col-12">
+				<label asp-for="Description" class="form-label">Description</label>
+				<input asp-for="Description" class="form-control" placeholder="Describe the project" value="@Model.Description" required>
+				<span asp-validation-for="Description" class="text-danger"></span>
+			</div>
+		</div>
+	</div>
+  <div class="modal-footer">
+    <button type="submit" class="btn btn-primary">Update Project</button>
+  </div>
+</form>

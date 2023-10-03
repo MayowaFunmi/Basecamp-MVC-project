@@ -1,0 +1,95 @@
+@model BasecampMVC.Data.UserViewModelData
+
+@if (TempData["msg"] != null)
+{
+    <p>@TempData["msg"]</p>
+}
+
+<h2>User Details</h2>
+<dl>
+    <dt>User ID:</dt>
+    <dd>@Model.Id</dd>
+    <dt>Username:</dt>
+    <dd>@Model.UserName</dd>
+    <dt>First Name:</dt>
+    <dd>@Model.FirstName</dd>
+    <dt>Last Name:</dt>
+    <dd>@Model.LastName</dd>
+    <dt>Phone Number:</dt>
+    <dd>@Model.PhoneNumber</dd>
+    <dt>Date Joined:</dt>
+    <dd>@Model.CreatedAt</dd>
+
+
+    <dt>Roles:</dt>
+    <dd>@string.Join(", ", Model.UserRoles)</dd>
+    <dd>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addroleModal">
+            Add Role
+        </button>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#removeRoleModal">
+            Remove Role
+        </button>
+    </dd>
+</dl>
+
+<!-- Modal -->
+<div class="modal fade" id="addroleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Add Role</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form asp-action="AddRoleToUser" method="post">
+          @Html.AntiForgeryToken()
+          <input type="hidden" asp-for="Id" value="@Model.Id" />
+          <h3>User Existing Roles: @string.Join(", ", Model.UserRoles);</h3>
+          
+          <div class="form-group">
+            <label for="SelectedRole">Select Role To Add:</label>
+            <select name="SelectedRole" id="SelectedRole">
+                @foreach (var role in Model.AvailableRoles)
+                {
+                    <option value="@role">@role</option>
+                }
+            </select>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Add Role</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="removeRoleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Remove Role</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form asp-action="RemoveRoleFromUser" method="post">
+          @Html.AntiForgeryToken()
+          <input type="hidden" asp-for="Id" value="@Model.Id" />          
+          <div class="form-group">
+            <label for="SelectedRole">Select Role To Remove:</label>
+            <select name="SelectedRole" id="SelectedRole">
+                @foreach (var role in Model.UserRoles)
+                {
+                    <option value="@role">@role</option>
+                }
+            </select>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Remove Role</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

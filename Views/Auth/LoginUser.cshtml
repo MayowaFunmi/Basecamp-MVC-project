@@ -1,0 +1,35 @@
+@model BasecampMVC.Data.LoginModelInput
+
+@{
+    ViewBag.Title = "User Login";
+}
+@if (TempData["msg"] != null)
+{
+  <p>@TempData["msg"]</p>
+}
+<main class="form-signin w-100 m-auto">
+  <form asp-action="LoginUser" method="post">
+    <h1 class="h3 mb-3 fw-normal">User Login Form</h1>
+
+    <div class="col-md-7 col-lg-8">
+      <div class="row g-3">
+        <div class="col-12">
+          <label asp-for="UserName" class="form-label">Username</label>
+          <input asp-for="UserName" class="form-control" placeholder="Enter your username" required>
+          <span asp-validation-for="UserName" class="text-danger"></span>
+        </div>
+
+        <div class="col-12">
+          <label asp-for="Password" class="form-label">Password</label>
+          <input type="password" asp-for="Password" class="form-control" placeholder="Enter your password" required>
+          <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-primary">Login</button>
+    </div>
+  </form>
+</main>
