@@ -13,6 +13,7 @@ namespace BasecampMVC.Interface
         Task<bool> Delete(string Id);
         Task<bool> AddTeamMembers(string projectId, string userId);
         Task<bool> RemoveTeamMember(string projectId, string userId);
+        Task<bool> AddMessageToThread(ApplicationUser user, string threadId, string content);
         Task<List<ApplicationUser>> ProjectTeamMembers(Project project);
         Task<MessageThread> CreateThread(string userId, string projectId, string title);
         bool IsUserInTeamMembers(Project project, ApplicationUser user);

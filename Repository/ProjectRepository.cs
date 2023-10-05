@@ -40,12 +40,13 @@ namespace BasecampMVC.Repository
         {
             var project = await GetProjectById(projectId);
             var user = await _userManager.FindByIdAsync(userId);
-            if (project != null && user != null)
+            if (project == null || user == null)
             {
-                project.TeamMembers.Add(user);
-                return Save();
+                return false;
             }
-            return false;
+
+            project.TeamMembers.Add(user);
+            return await _context.SaveChangesAsync() > 0;
         }
 
         public async Task<bool> RemoveTeamMember(string projectId, string userId)
@@ -99,7 +100,13 @@ namespace BasecampMVC.Repository
 
         public async Task<IEnumerable<Project>> GetProjectByUserId(string Id)
         {
-            var userProjects = await _context.Projects.Include(p => p.User).Where(p => p.User.Id == Id).ToListAsync();
+            var userProjects = await _context.Projects
+                .Include(p => p.User)
+                .Include(p => p.TeamMembers)
+                .Include(p => p.MessageThreads)
+                .ThenInclude(mt => mt.Messages)
+                .Where(p => p.User.Id == Id || p.TeamMembers.Any(tm => tm.Id == Id))
+                .ToListAsync();
             return userProjects ?? default!;
         }
 
@@ -133,6 +140,9 @@ namespace BasecampMVC.Repository
 
         public async Task<MessageThread> CreateThread(string userId, string projectId, string title)
         {
+            // // Console.Write("project id = " + projectId);
+            // // Console.Write("title = " + title);
+            // // Console.Write("userId = " + userId);
             var project = await GetProjectById(projectId);
             var user = await _userManager.FindByIdAsync(userId);
             if (project != null && user != null)
@@ -155,6 +165,30 @@ namespace BasecampMVC.Repository
                 return null;
             }
             return null;
+        }
+
+        public async Task<bool> AddMessageToThread(ApplicationUser user, string threadId, string content)
+        {
+            if (user != null && !string.IsNullOrEmpty(threadId) && !string.IsNullOrEmpty(content))
+            {
+                var messageThread = await _context.MessageThreads.FirstOrDefaultAsync(t => t.MessageThreadId.ToString() == threadId);
+                if (messageThread != null)
+                {
+                    var message = new Message
+                    {
+                        MessageThreadId = Guid.Parse(threadId),
+                        Thread = messageThread,
+                        UserId = user.Id,
+                        User = user,
+                        Content = content,
+                        CreatedAt = DateTime.Now,
+                    };
+                    _context.Messages.Add(message);
+                    return Save();
+                }
+                return false;
+            }
+            return false;
         }
     }
 }

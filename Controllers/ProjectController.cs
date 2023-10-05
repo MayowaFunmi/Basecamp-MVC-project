@@ -134,7 +134,7 @@ namespace BasecampMVC.Controllers
             var project = await _projectRepository.GetProjectById(projectId);
             if (user != null && project != null)
             {
-                var result = await _projectRepository.AddTeamMembers(projectId, user.Id);
+                var result = await _projectRepository.AddTeamMembers(project.ProjectId.ToString(), user.Id);
                 if (result)
                 {
                     TempData["msg"] = "User added to team successfully";
@@ -155,7 +155,7 @@ namespace BasecampMVC.Controllers
             var project = await _projectRepository.GetProjectById(projectId);
             if (user != null && project != null)
             {
-                var result = await _projectRepository.RemoveTeamMember(projectId, user.Id);
+                var result = await _projectRepository.RemoveTeamMember(project.ProjectId.ToString(), user.Id);
                 if (result)
                 {
                     TempData["msg"] = "User removed from team successfully";
@@ -189,8 +189,15 @@ namespace BasecampMVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateThread(string projectId, string title)
         {
+            if (!ModelState.IsValid)
+            {
+                TempData["msg"] = "Invalid model state";
+                return RedirectToAction("Detail", new { projectId});
+            }
             if (!string.IsNullOrEmpty(projectId) && !string.IsNullOrEmpty(title))
             {
+                Console.Write("project id = " + projectId);
+                Console.Write("title = " + title);
                 var user = await _userManager.GetUserAsync(User);
                 if (user != null)
                 {
@@ -209,5 +216,48 @@ namespace BasecampMVC.Controllers
             TempData["msg"] = "Invalid model state";
             return RedirectToAction("Detail", new { projectId});
         }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateMessage(string threadId, string content, string projectId)
+        {
+            if (ModelState.IsValid)
+            {
+                var currentUser = _userManager.GetUserAsync(User).Result;
+                if (currentUser != null)
+                {
+                    var result = await _projectRepository.AddMessageToThread(currentUser, threadId, content);
+                    if (result)
+                    {
+                        TempData["msg"] = "Message sent successfully";
+                        return RedirectToAction("Detail", new { projectId});
+                    }
+                    TempData["msg"] = "Failed to add message to thread";
+                    return RedirectToAction("Detail", new { projectId});
+                }
+                TempData["msg"] = "User not found";
+                return RedirectToAction("Detail", new { projectId});
+            }
+            TempData["msg"] = "invalid model state";
+            return RedirectToAction("Detail", new { projectId});
+        }
+        // public async Task<JsonResult> CreateMessage(string threadId, string content)
+        // {
+        //     if (!string.IsNullOrEmpty(threadId) && !string.IsNullOrEmpty(content))
+        //     {
+        //         var currentUser = _userManager.GetUserAsync(User).Result;
+        //         if (currentUser != null)
+        //         {
+        //             var result = await _projectRepository.AddMessageToThread(currentUser, threadId, content);
+        //             if (result)
+        //             {
+        //                 return Json(new { success = true, message = "Message created successfully" });
+        //             }
+        //             return Json(new { error = true, message = "Failed to create message" });
+        //         }
+        //         return Json(new { error = true, message = "User is not logged in" });
+        //     }
+        //     return Json(new { error = true, message = "Validation error" });
+        // }
+
     }    
 } 

@@ -59,7 +59,7 @@
     @if (Model.MessageThreads.Count == 0)
     {
       <p>No Message Thread</p>
-      <a href="#" class="card-link">Send the first message</a>
+      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#threadModal">Start New Thread</button>
     }
     else
     {
@@ -72,9 +72,19 @@
                 <p class="card-title">Project Name: @Model.Name</p>
                 <p class="card-title">Thread Title: @thread.Title</p>
                 <p class="card-subtitle mb-2 text-muted">Total messages: @thread.Messages.Count</p>
-                <a href="#" class="card-link">Write a message</a>
+                <form id="message" asp-action="CreateMessage" method="post">
+                  @Html.AntiForgeryToken()
+                  <input type="hidden" id="threadId" name="threadId" value="@thread.MessageThreadId" />
+                  <input type="hidden" id="projectId" name="projectId" value="@Model.ProjectId" />
+
+                  <div class="mb-3">
+                    <label for="content" class="form-label">Message Content: </label>
+                    <textarea class="form-control" id="content" name="content" placeholder="write your message ..." rows="3"></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-success">Send Message</button>
+                </form>
               </div>
-              <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#threadMessages">Show Mwssages</button>
+              <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#threadMessages">Read Mwssages</button>
             </div>
           </div>
           <!-- Thread Messages Modal -->
@@ -100,6 +110,7 @@
                                   <div class="message alert alert-primary">
                                     @message.Content
                                   </div>
+                                  <small>by @message.User</small>
                                 </div>
                               </div>
                             }
@@ -183,4 +194,4 @@
 </div>
 
 @* <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="~/js/newThread.js"></script> *@
+<script src="~/js/newMessage.js"></script> *@
